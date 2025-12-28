@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles */
+.task-overdue {
+    background-color: #fee2e2;
+}
+
+.task-due-today {
+    background-color: #fef3c7;
+}
+
+.task-status-completato {
+    opacity: 0.7;
+}
+
