@@ -1,5 +1,5 @@
 <script setup>
-import AppLayout from '@/Layouts/AppLayout.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Link, Head, useForm } from '@inertiajs/vue3';
 
 const props = defineProps({
@@ -25,7 +25,7 @@ const submit = () => {
 <template>
     <Head :title="`Modifica ${task.name}`" />
 
-    <AppLayout>
+    <AuthenticatedLayout>
         <div class="content">
             <nav class="breadcrumb" aria-label="breadcrumbs">
                 <ul>
@@ -152,6 +152,6 @@ const submit = () => {
                 </div>
             </div>
         </div>
-    </AppLayout>
+    </AuthenticatedLayout>
 </template>
 

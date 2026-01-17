@@ -187,7 +187,7 @@ const resetFilters = () => {
                                         </Link>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4">
-                                        <Link :href="route('contacts.show', project.contact.id)" class="text-sm text-gray-900 hover:text-gray-700 dark:text-gray-300">
+                                        <Link :href="route('clients.show', project.contact.id)" class="text-sm text-gray-900 hover:text-gray-700 dark:text-gray-300">
                                             {{ project.contact.name }}
                                         </Link>
                                     </td>

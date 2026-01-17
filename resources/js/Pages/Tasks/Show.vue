@@ -146,7 +146,7 @@ const resumeTask = () => {
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Cliente</dt>
                                     <dd class="mt-1">
-                                        <Link :href="route('contacts.show', task.project.contact.id)" class="text-sm text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">
+                                        <Link :href="route('clients.show', task.project.contact.id)" class="text-sm text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">
                                             {{ task.project.contact.name }}
                                         </Link>
                                     </dd>

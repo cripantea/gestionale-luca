@@ -11,22 +11,34 @@ use Inertia\Response;
 
 class TaskController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $tasks = Task::with(['project.contact', 'project.projectType'])
-            ->orderByDeadline()
-            ->get();
+        $showCompleted = $request->boolean('show_completed', false);
+        
+        $query = Task::with(['project.contact', 'project.projectType']);
+        
+        if (!$showCompleted) {
+            $query->whereIn('status', ['da_fare', 'in_corso', 'in_pausa', 'in_attesa']);
+        }
+        
+        $tasks = $query->orderByDeadline()->get();
 
         return Inertia::render('Tasks/Index', [
             'tasks' => $tasks,
+            'showCompleted' => $showCompleted,
         ]);
     }
 
     public function create(): Response
     {
+        $clients = \App\Models\Contact::withCount('projects')
+            ->orderBy('name')
+            ->get();
+        
         $projects = Project::with('contact')->orderBy('name')->get();
 
         return Inertia::render('Tasks/Create', [
+            'clients' => $clients,
             'projects' => $projects,
         ]);
     }
@@ -39,6 +51,12 @@ class TaskController extends Controller
             'description' => 'nullable|string',
             'deadline' => 'required|date',
             'blocked_by_task_id' => 'nullable|exists:tasks,id',
+            'priority' => 'nullable|in:bassa,media,alta,critica',
+            'estimated_hours' => 'nullable|numeric|min:0',
+            'is_recurring' => 'boolean',
+            'recurrence_pattern' => 'nullable|in:daily,weekly,monthly,yearly',
+            'recurrence_interval' => 'nullable|integer|min:1',
+            'recurrence_end_date' => 'nullable|date|after:deadline',
         ]);
 
         Task::create($validated);
@@ -106,8 +124,13 @@ class TaskController extends Controller
     public function complete(Task $task): RedirectResponse
     {
         $task->complete();
+        
+        // Se la task è ricorrente, crea automaticamente la prossima istanza
+        if ($task->is_recurring) {
+            $task->createNextRecurrence();
+        }
 
-        return back()->with('success', 'Task completata.');
+        return back()->with('success', 'Task completata.' . ($task->is_recurring ? ' Prossima ricorrenza creata.' : ''));
     }
 
     public function pause(Request $request, Task $task): RedirectResponse

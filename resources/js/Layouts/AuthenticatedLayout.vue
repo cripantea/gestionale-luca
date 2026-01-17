@@ -1,17 +1,49 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import { Link } from '@inertiajs/vue3';
+import QuickActionsFAB from '@/Components/QuickActionsFAB.vue';
+import GlobalSearch from '@/Components/GlobalSearch.vue';
+import { Link, usePage } from '@inertiajs/vue3';
+import { Toaster, toast } from 'vue-sonner';
 
 const showingNavigationDropdown = ref(false);
+const page = usePage();
+
+// Watch for flash messages from Laravel
+watch(
+    () => page.props.flash,
+    (flash) => {
+        if (flash?.success) {
+            toast.success(flash.success);
+        }
+        if (flash?.error) {
+            toast.error(flash.error);
+        }
+        if (flash?.warning) {
+            toast.warning(flash.warning);
+        }
+        if (flash?.info) {
+            toast.info(flash.info);
+        }
+    },
+    { deep: true, immediate: true }
+);
 </script>
 
 <template>
     <div>
+        <!-- Toast Notifications -->
+        <Toaster 
+            position="top-right" 
+            :duration="3000" 
+            richColors 
+            closeButton 
+        />
+        
         <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
             <nav
                 class="border-b border-gray-200 bg-white/80 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/80 shadow-sm"
@@ -40,10 +72,10 @@ const showingNavigationDropdown = ref(false);
                                     Dashboard
                                 </NavLink>
                                 <NavLink
-                                    :href="route('contacts.index')"
-                                    :active="route().current('contacts.*')"
+                                    :href="route('clients.index')"
+                                    :active="route().current('clients.*')"
                                 >
-                                    Contatti
+                                    Clienti
                                 </NavLink>
                                 <NavLink
                                     :href="route('projects.index')"
@@ -56,6 +88,19 @@ const showingNavigationDropdown = ref(false);
                                     :active="route().current('tasks.*')"
                                 >
                                     Task
+                                </NavLink>
+                                <NavLink
+                                    :href="route('calendar.index')"
+                                    :active="route().current('calendar.*')"
+                                >
+                                    📅 Calendario
+                                </NavLink>
+
+                                <NavLink
+                                    :href="route('spese.index')"
+                                    :active="route().current('spese.*')"
+                                >
+                                    💸 Spese
                                 </NavLink>
 
                                 <!-- Dropdown Configurazione -->
@@ -91,6 +136,11 @@ const showingNavigationDropdown = ref(false);
                                     </template>
                                 </Dropdown>
                             </div>
+                        </div>
+
+                        <div class="hidden sm:ms-6 sm:flex sm:items-center sm:space-x-4">
+                            <!-- Global Search -->
+                            <GlobalSearch />
                         </div>
 
                         <div class="hidden sm:ms-6 sm:flex sm:items-center">
@@ -198,10 +248,10 @@ const showingNavigationDropdown = ref(false);
                             Dashboard
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
-                            :href="route('contacts.index')"
-                            :active="route().current('contacts.*')"
+                            :href="route('clients.index')"
+                            :active="route().current('clients.*')"
                         >
-                            Contatti
+                            Clienti
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('projects.index')"
@@ -280,5 +330,8 @@ const showingNavigationDropdown = ref(false);
                 <slot />
             </main>
         </div>
+
+        <!-- Quick Actions FAB -->
+        <QuickActionsFAB />
     </div>
 </template>

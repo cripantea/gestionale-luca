@@ -8,7 +8,14 @@ const props = defineProps({
     urgentTasks: Array,
     stats: Object,
     activeProjects: Array,
+    upcomingInvoices: Array,
+    speseStratordinarie: Array,
 });
+
+const formatCurrency = (value) => {
+    if (!value && value !== 0) return '-';
+    return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value);
+};
 
 const formatDate = (dateString) => {
     if (!dateString) return '-';
@@ -87,98 +94,165 @@ const upcomingTasks = computed(() => props.tasks.filter(task => !task.is_overdue
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8 space-y-6">
 
-                <!-- Overview Statistics Cards -->
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-                    <!-- Contacts -->
-                    <Link :href="route('contacts.index')" class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800 hover:shadow-md transition-all transform hover:scale-105 cursor-pointer">
+                <!-- Overview Statistics Cards - I 4 DATI PRINCIPALI -->
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    
+                    <!-- 1. MRR Lordo -->
+                    <Link :href="route('clients.index')" class="overflow-hidden bg-gradient-to-br from-green-500 to-green-600 shadow-lg sm:rounded-lg hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer">
                         <div class="p-6">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 rounded-md bg-blue-500 p-3">
-                                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                    </svg>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-green-100">💰 MRR Lordo</p>
+                                    <p class="mt-2 text-3xl font-bold text-white">{{ formatCurrency(stats.mrr_lordo) }}</p>
+                                    <p class="mt-1 text-xs text-green-100">{{ stats.total_clients }} clienti</p>
                                 </div>
-                                <div class="ml-5 w-0 flex-1">
-                                    <dl>
-                                        <dt class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Contatti</dt>
-                                        <dd class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ stats.total_contacts }}</dd>
-                                    </dl>
+                                <div class="flex-shrink-0">
+                                    <svg class="h-12 w-12 text-green-200 opacity-50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
                                 </div>
                             </div>
                         </div>
                     </Link>
 
-                    <!-- Clients -->
-                    <Link :href="route('contacts.index')" class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800 hover:shadow-md transition-all transform hover:scale-105 cursor-pointer">
+                    <!-- 2. MRR Netto (Lordo x 0.75) -->
+                    <div class="overflow-hidden bg-gradient-to-br from-teal-500 to-teal-600 shadow-lg sm:rounded-lg">
                         <div class="p-6">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 rounded-md bg-green-500 p-3">
-                                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-teal-100">💵 MRR Netto</p>
+                                    <p class="mt-2 text-3xl font-bold text-white">{{ formatCurrency(stats.mrr_netto) }}</p>
+                                    <p class="mt-1 text-xs text-teal-100">Lordo - 25% contributi</p>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <svg class="h-12 w-12 text-teal-200 opacity-50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                                     </svg>
-                                </div>
-                                <div class="ml-5 w-0 flex-1">
-                                    <dl>
-                                        <dt class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Clienti</dt>
-                                        <dd class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ stats.total_clients }}</dd>
-                                    </dl>
-                                </div>
-                            </div>
-                        </div>
-                    </Link>
-
-                    <!-- Projects -->
-                    <Link :href="route('projects.index')" class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800 hover:shadow-md transition-all transform hover:scale-105 cursor-pointer">
-                        <div class="p-6">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 rounded-md bg-purple-500 p-3">
-                                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
-                                <div class="ml-5 w-0 flex-1">
-                                    <dl>
-                                        <dt class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Progetti</dt>
-                                        <dd class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ stats.total_projects }}</dd>
-                                    </dl>
-                                </div>
-                            </div>
-                        </div>
-                    </Link>
-
-                    <!-- Active Projects -->
-                    <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
-                        <div class="p-6">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 rounded-md bg-yellow-500 p-3">
-                                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                    </svg>
-                                </div>
-                                <div class="ml-5 w-0 flex-1">
-                                    <dl>
-                                        <dt class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Attivi</dt>
-                                        <dd class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ stats.active_projects }}</dd>
-                                    </dl>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Completed This Month -->
-                    <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
+                    <!-- 3. Utile (MRR Netto - Spese) -->
+                    <div class="overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg sm:rounded-lg">
                         <div class="p-6">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 rounded-md bg-indigo-500 p-3">
-                                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-blue-100">✨ Utile</p>
+                                    <p class="mt-2 text-3xl font-bold text-white">{{ formatCurrency(stats.utile) }}</p>
+                                    <p class="mt-1 text-xs text-blue-100">Netto - Spese {{ formatCurrency(stats.spese_mensili) }}</p>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <svg class="h-12 w-12 text-blue-200 opacity-50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                                     </svg>
                                 </div>
-                                <div class="ml-5 w-0 flex-1">
-                                    <dl>
-                                        <dt class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Task Mese</dt>
-                                        <dd class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ stats.tasks_completed_this_month }}</dd>
-                                    </dl>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Potenziale Upsell -->
+                    <div class="overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg sm:rounded-lg">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-orange-100">🚀 Potenziale Upsell</p>
+                                    <p class="mt-2 text-3xl font-bold text-white">{{ formatCurrency(stats.potenziale_upsell) }}</p>
+                                    <p class="mt-1 text-xs text-orange-100">Opportunità mensili</p>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <svg class="h-12 w-12 text-orange-200 opacity-50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Spese Straordinarie in Arrivo -->
+                <div v-if="speseStratordinarie && speseStratordinarie.length > 0" class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800 border-2 border-red-200 dark:border-red-800">
+                    <div class="border-b border-red-200 bg-gradient-to-r from-red-50 to-orange-50 px-6 py-4 dark:border-red-800 dark:from-red-900/20 dark:to-orange-900/20">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                🚨 Spese Straordinarie (Prossimi 6 mesi)
+                            </h3>
+                            <Link :href="route('spese.index')" class="text-sm font-medium text-red-600 hover:text-red-800 dark:text-red-400">
+                                Gestisci →
+                            </Link>
+                        </div>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                            Totale: {{ formatCurrency(speseStratordinarie.reduce((sum, s) => sum + s.importo, 0)) }}
+                        </p>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-3">
+                            <div v-for="spesa in speseStratordinarie" :key="spesa.id" class="flex items-center justify-between rounded-lg border-2 p-4 dark:border-gray-700 hover:shadow-md transition-all"
+                                 :class="spesa.days_until <= 30 ? 'border-red-300 bg-red-50 dark:bg-red-900/10' : spesa.days_until <= 60 ? 'border-orange-300 bg-orange-50 dark:bg-orange-900/10' : 'border-yellow-300 bg-yellow-50 dark:bg-yellow-900/10'">
+                                <div class="flex-1">
+                                    <div class="font-medium text-gray-900 dark:text-gray-100">{{ spesa.nome }}</div>
+                                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                        <span v-if="spesa.categoria" class="capitalize">{{ spesa.categoria }}</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-right">
+                                        <div class="font-semibold text-red-600 dark:text-red-400">-{{ formatCurrency(spesa.importo) }}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ new Date(spesa.data_scadenza).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' }) }}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span v-if="spesa.days_until <= 30" class="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
+                                            ⚠️ {{ spesa.days_until }}gg
+                                        </span>
+                                        <span v-else-if="spesa.days_until <= 60" class="inline-flex items-center rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-800">
+                                            {{ Math.round(spesa.days_until / 30) }}m
+                                        </span>
+                                        <span v-else class="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800">
+                                            {{ Math.round(spesa.days_until / 30) }}m
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prossime Fatture -->
+                <div v-if="upcomingInvoices && upcomingInvoices.length > 0" class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
+                    <div class="border-b border-gray-200 bg-white px-6 py-4 dark:border-gray-700 dark:bg-gray-800">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+                            📆 Prossime Fatture (30 giorni)
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-3">
+                            <div v-for="invoice in upcomingInvoices" :key="invoice.id" class="flex items-center justify-between rounded-lg border border-gray-200 p-4 dark:border-gray-700 hover:border-indigo-300 transition-colors">
+                                <div class="flex-1">
+                                    <Link :href="route('clients.show', invoice.id)" class="font-medium text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">
+                                        {{ invoice.name }}
+                                    </Link>
+                                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400 capitalize">{{ invoice.tipo }}</div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-right">
+                                        <div class="font-semibold text-green-600">{{ formatCurrency(invoice.amount) }}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ new Date(invoice.data).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) }}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span v-if="invoice.days_until <= 3" class="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
+                                            {{ invoice.days_until === 0 ? 'Oggi' : invoice.days_until + 'gg' }}
+                                        </span>
+                                        <span v-else-if="invoice.days_until <= 7" class="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800">
+                                            {{ invoice.days_until }}gg
+                                        </span>
+                                        <span v-else class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">
+                                            {{ invoice.days_until }}gg
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -360,7 +434,7 @@ const upcomingTasks = computed(() => props.tasks.filter(task => !task.is_overdue
                                         <div class="text-xs text-gray-500">{{ task.project.project_type_name }}</div>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
-                                        <Link :href="route('contacts.show', task.project.contact_id)" class="hover:text-gray-700">
+                                        <Link :href="route('clients.show', task.project.contact_id)" class="hover:text-gray-700">
                                             {{ task.project.contact_name }}
                                         </Link>
                                     </td>
@@ -414,7 +488,7 @@ const upcomingTasks = computed(() => props.tasks.filter(task => !task.is_overdue
                                         <div class="text-xs text-gray-500">{{ task.project.project_type_name }}</div>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
-                                        <Link :href="route('contacts.show', task.project.contact_id)" class="hover:text-gray-700">
+                                        <Link :href="route('clients.show', task.project.contact_id)" class="hover:text-gray-700">
                                             {{ task.project.contact_name }}
                                         </Link>
                                     </td>
@@ -468,7 +542,7 @@ const upcomingTasks = computed(() => props.tasks.filter(task => !task.is_overdue
                                         <div class="text-xs text-gray-500">{{ task.project.project_type_name }}</div>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
-                                        <Link :href="route('contacts.show', task.project.contact_id)" class="hover:text-gray-700">
+                                        <Link :href="route('clients.show', task.project.contact_id)" class="hover:text-gray-700">
                                             {{ task.project.contact_name }}
                                         </Link>
                                     </td>

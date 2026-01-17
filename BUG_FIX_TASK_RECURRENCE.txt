@@ -1,0 +1,24 @@
+✅ BUG FIX APPLICATO!
+
+🐛 PROBLEMA:
+Il metodo createNextRecurrence() mutava ->deadline
+invece di creare una copia, corrompendo i dati della task originale.
+
+✅ SOLUZIONE:
+Aggiunto ->copy() prima di ogni metodo add*():
+- $this->deadline->copy()->addDays()
+- $this->deadline->copy()->addWeeks()
+- $this->deadline->copy()->addMonths()
+- $this->deadline->copy()->addYears()
+
+📊 IMPATTO:
+- Task ricorrenti ora mantengono la deadline originale ✅
+- Nessuna corruzione dati ✅
+- Prossima ricorrenza calcolata correttamente ✅
+
+🧪 TEST:
+1. Crea task ricorrente con deadline 2026-01-20
+2. Completa task
+3. Verifica che task originale mantenga 2026-01-20
+4. Verifica che nuova task abbia 2026-01-21 (daily +1)
+

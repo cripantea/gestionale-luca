@@ -6,6 +6,7 @@ import { ref, computed, watch } from 'vue';
 
 const props = defineProps({
     tasks: Array,
+    showCompleted: Boolean,
 });
 
 // Vista (lista o kanban)
@@ -100,6 +101,11 @@ const resetFilters = () => {
     searchQuery.value = '';
     statusFilter.value = 'all';
     projectFilter.value = 'all';
+};
+
+// Toggle per mostrare task completate
+const toggleCompleted = () => {
+    router.get(route('tasks.index'), { show_completed: !props.showCompleted }, { preserveState: true, preserveScroll: true });
 };
 </script>
 
@@ -207,9 +213,28 @@ const resetFilters = () => {
                         </div>
 
                         <!-- Active Filters & Reset -->
-                        <div v-if="searchQuery || statusFilter !== 'all' || projectFilter !== 'all'" class="mt-4 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-4">
-                            <div class="text-sm text-gray-600 dark:text-gray-400">
-                                Mostrando {{ filteredTasks.length }} di {{ tasks.length }} task
+                        <div class="mt-4 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-4">
+                            <div class="flex items-center space-x-4">
+                                <div v-if="searchQuery || statusFilter !== 'all' || projectFilter !== 'all'" class="text-sm text-gray-600 dark:text-gray-400">
+                                    Mostrando {{ filteredTasks.length }} di {{ tasks.length }} task
+                                </div>
+                                
+                                <!-- Toggle Task Completate -->
+                                <button
+                                    @click="toggleCompleted"
+                                    type="button"
+                                    :class="showCompleted ? 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700' : 'bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600'"
+                                    class="inline-flex items-center px-3 py-1.5 border rounded-full text-sm font-medium hover:shadow-sm transition-all"
+                                >
+                                    <svg v-if="showCompleted" class="w-4 h-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                    <svg v-else class="w-4 h-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                                    </svg>
+                                    {{ showCompleted ? '✓ Completate visibili' : 'Nascondi completate' }}
+                                </button>
                             </div>
                             <button
                                 @click="resetFilters"
@@ -257,7 +282,7 @@ const resetFilters = () => {
                                         <div class="text-xs text-gray-500">{{ task.project.project_type.name }}</div>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4">
-                                        <Link :href="route('contacts.show', task.project.contact.id)" class="text-sm text-gray-900 hover:text-gray-700 dark:text-gray-300">
+                                        <Link :href="route('clients.show', task.project.contact.id)" class="text-sm text-gray-900 hover:text-gray-700 dark:text-gray-300">
                                             {{ task.project.contact.name }}
                                         </Link>
                                     </td>

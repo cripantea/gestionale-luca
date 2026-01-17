@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectTypeController;
 use App\Http\Controllers\TaskController;
@@ -19,8 +19,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Contacts
-    Route::resource('contacts', ContactController::class);
+    // Clients (Clienti)
+    Route::resource('clients', ClientController::class);
+    Route::get('/clients/{client}/export', [\App\Http\Controllers\ClientExportController::class, 'exportClient'])->name('clients.export');
+    Route::get('/clients-export-all', [\App\Http\Controllers\ClientExportController::class, 'exportAll'])->name('clients.export.all');
+
+    // Spese
+    Route::resource('spese', \App\Http\Controllers\SpesaController::class);
 
     // Project Types
     Route::resource('project-types', ProjectTypeController::class);
@@ -33,6 +38,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Tasks
     Route::resource('tasks', TaskController::class);
+    
+    // Calendar
+    Route::get('/calendar', [\App\Http\Controllers\CalendarController::class, 'index'])->name('calendar.index');
 
     // Task Actions
     Route::post('/tasks/{task}/start', [TaskController::class, 'start'])->name('tasks.start');
