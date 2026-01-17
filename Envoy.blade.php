@@ -53,14 +53,35 @@ pwd
 echo "Current release directory:"
 ls -la {{ $currentDir }}
 echo ""
-echo "Public build directory:"
-ls -la {{ $currentDir }}/public/build/ || echo "❌ Build directory not found"
+echo "Public build directory contents:"
+ls -laR {{ $currentDir }}/public/build/ || echo "❌ Build directory not found"
 echo ""
 echo "Manifest file:"
 cat {{ $currentDir }}/public/build/manifest.json || echo "❌ Manifest not found"
 echo ""
 echo "Permissions:"
 ls -ld {{ $currentDir }}/public/build
+echo ""
+echo "Node and NPM versions:"
+node -v
+npm -v
+echo ""
+echo "Check if .vite directory exists:"
+ls -la {{ $currentDir }}/public/build/.vite/ || echo "No .vite directory"
+@endtask
+
+@task('rebuildAssets', ['on' => 'remote'])
+{{ logMessage('🔨  Rebuilding assets on current release…') }}
+cd {{ $currentDir }}
+echo "Cleaning old build..."
+rm -rf public/build/*
+echo "Running npm install..."
+npm install --production=false
+echo "Running build with verbose output..."
+npm run build
+echo "Checking result..."
+ls -la public/build/
+[ -f public/build/manifest.json ] && echo "✅ Build SUCCESS" || echo "❌ Build FAILED"
 @endtask
 
 @task('cloneRepository', ['on' => 'remote'])
@@ -105,13 +126,34 @@ composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader;
 @task('runNpm', ['on' => 'remote'])
 {{ logMessage('📦  Running Npm…') }}
 cd {{ $newReleaseDir }};
-npm  install
+# Install ALL dependencies (including devDependencies needed for build)
+npm ci --include=dev || npm install --include=dev
+echo "✅ NPM dependencies installed"
 @endtask
 
 @task('generateAssets', ['on' => 'remote'])
 {{ logMessage('🌅  Generating assets…') }}
 cd {{ $newReleaseDir }};
-npm run build --verbose
+echo "Current directory: $(pwd)"
+echo "Node version: $(node -v)"
+echo "NPM version: $(npm -v)"
+echo "Running npm run build..."
+npm run build 2>&1 | tee build.log
+BUILD_EXIT_CODE=${PIPESTATUS[0]}
+echo "Build exit code: $BUILD_EXIT_CODE"
+if [ $BUILD_EXIT_CODE -ne 0 ]; then
+    echo "❌ Build failed! Check build.log"
+    cat build.log
+    exit 1
+fi
+echo "Checking if manifest exists..."
+if [ ! -f {{ $newReleaseDir }}/public/build/manifest.json ]; then
+    echo "❌ Manifest not generated!"
+    echo "Build directory contents:"
+    ls -laR {{ $newReleaseDir }}/public/build/
+    exit 1
+fi
+echo "✅ Build completed successfully"
 # Fix permissions for build directory
 chmod -R 755 {{ $newReleaseDir }}/public/build
 chown -R {{ $user }}:{{ $user }} {{ $newReleaseDir }}/public/build
@@ -156,16 +198,21 @@ cd {{ $newReleaseDir }};
 {{ logMessage('🙏  Blessing new release…') }}
 ln -nfs {{ $newReleaseDir }} {{ $currentDir }};
 cd {{ $newReleaseDir }}
-{{ $php }} artisan config:clear
-{{ $php }} artisan view:clear
-{{ $php }} artisan schedule:clear-cache
-{{ $php }} artisan queue:restart
+# Create symlink for Vite 7 manifest compatibility (if needed)
+if [ -f {{ $newReleaseDir }}/public/build/.vite/manifest.json ] && [ ! -f {{ $newReleaseDir }}/public/build/manifest.json ]; then
+    cd {{ $newReleaseDir }}/public/build
+    ln -s .vite/manifest.json manifest.json
+    echo "✅ Created manifest symlink for Vite 7 compatibility"
+fi
+cd {{ $newReleaseDir }}
+{{ $php }} artisan optimize:clear
 {{ $php }} artisan config:cache
 {{ $php }} artisan storage:link
+{{ $php }} artisan queue:restart
 # Ensure public directory has correct permissions
 chmod -R 755 {{ $newReleaseDir }}/public
 # Verify build assets exist
-[ -f {{ $newReleaseDir }}/public/build/manifest.json ] && echo "✅ Build manifest found" || echo "❌ Build manifest NOT found"
+[ -f {{ $newReleaseDir }}/public/build/.vite/manifest.json ] && echo "✅ Vite 7 manifest found" || echo "❌ Manifest NOT found"
 @endtask
 
 @task('cleanOldReleases', ['on' => 'remote'])
