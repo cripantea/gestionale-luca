@@ -146,14 +146,18 @@ if [ $BUILD_EXIT_CODE -ne 0 ]; then
     cat build.log
     exit 1
 fi
-echo "Checking if manifest exists..."
-if [ ! -f {{ $newReleaseDir }}/public/build/manifest.json ]; then
+echo "Checking if manifest exists (Vite 7 uses .vite/ subdirectory)..."
+if [ ! -f {{ $newReleaseDir }}/public/build/.vite/manifest.json ]; then
     echo "❌ Manifest not generated!"
     echo "Build directory contents:"
     ls -laR {{ $newReleaseDir }}/public/build/
     exit 1
 fi
-echo "✅ Build completed successfully"
+echo "✅ Build completed successfully with Vite 7 manifest"
+# Create compatibility symlink for Laravel
+cd {{ $newReleaseDir }}/public/build
+ln -sf .vite/manifest.json manifest.json
+echo "✅ Created manifest symlink for Laravel compatibility"
 # Fix permissions for build directory
 chmod -R 755 {{ $newReleaseDir }}/public/build
 chown -R {{ $user }}:{{ $user }} {{ $newReleaseDir }}/public/build
@@ -198,13 +202,6 @@ cd {{ $newReleaseDir }};
 {{ logMessage('🙏  Blessing new release…') }}
 ln -nfs {{ $newReleaseDir }} {{ $currentDir }};
 cd {{ $newReleaseDir }}
-# Create symlink for Vite 7 manifest compatibility (if needed)
-if [ -f {{ $newReleaseDir }}/public/build/.vite/manifest.json ] && [ ! -f {{ $newReleaseDir }}/public/build/manifest.json ]; then
-    cd {{ $newReleaseDir }}/public/build
-    ln -s .vite/manifest.json manifest.json
-    echo "✅ Created manifest symlink for Vite 7 compatibility"
-fi
-cd {{ $newReleaseDir }}
 {{ $php }} artisan optimize:clear
 {{ $php }} artisan config:cache
 {{ $php }} artisan storage:link
@@ -213,6 +210,7 @@ cd {{ $newReleaseDir }}
 chmod -R 755 {{ $newReleaseDir }}/public
 # Verify build assets exist
 [ -f {{ $newReleaseDir }}/public/build/.vite/manifest.json ] && echo "✅ Vite 7 manifest found" || echo "❌ Manifest NOT found"
+[ -f {{ $newReleaseDir }}/public/build/manifest.json ] && echo "✅ Manifest symlink exists" || echo "⚠️ Manifest symlink not found (Laravel compatibility)"
 @endtask
 
 @task('cleanOldReleases', ['on' => 'remote'])
