@@ -6,6 +6,7 @@ use App\Models\Task;
 use App\Models\Contact;
 use App\Models\Project;
 use App\Models\Spesa;
+use App\Models\Subscription;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -38,11 +39,13 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Calcoli finanziari - Logica corretta
-        // 1. MRR Lordo (somma tutti i clienti)
-        $mrrLordo = Contact::sum('accordo_economico_mensile');
+        // Calcoli finanziari - CORRETTO con Subscriptions
+        // 1. MRR Lordo: somma di TUTTI i contratti attivi (esclusi percentuali)
+        $mrrLordo = Subscription::where('attivo', true)
+            ->where('frequenza', '!=', 'percentuale')
+            ->sum('mrr_calcolato');
         
-        // 2. MRR Netto (togli 25% contributi subito)
+        // 2. MRR Netto (togli 25% contributi regime forfettario)
         $mrrNetto = $mrrLordo * 0.75;
         
         // 3. Spese ricorrenti (tutte le spese attive non una tantum)
@@ -71,21 +74,26 @@ class DashboardController extends Controller
             'potenziale_upsell' => $potenzialeUpsell,
         ];
 
-        // Prossime fatture (prossimi 30 giorni)
-        $upcomingInvoices = Contact::whereNotNull('data_prossima_fattura')
+        // Prossime fatture (prossimi 30 giorni) - DA SUBSCRIPTIONS
+        $upcomingInvoices = Subscription::with('contact')
+            ->where('attivo', true)
+            ->whereNotNull('data_prossima_fattura')
             ->where('data_prossima_fattura', '>=', now())
             ->where('data_prossima_fattura', '<=', now()->addDays(30))
             ->orderBy('data_prossima_fattura')
-            ->get(['id', 'name', 'company', 'accordo_economico_mensile', 'tipo_fatturazione', 'data_prossima_fattura'])
-            ->map(function ($client) {
+            ->get()
+            ->map(function ($subscription) {
                 return [
-                    'id' => $client->id,
-                    'name' => $client->name,
-                    'company' => $client->company,
-                    'amount' => $client->accordo_economico_mensile,
-                    'tipo' => $client->tipo_fatturazione,
-                    'data' => $client->data_prossima_fattura,
-                    'days_until' => now()->diffInDays($client->data_prossima_fattura, false),
+                    'id' => $subscription->id,
+                    'subscription_id' => $subscription->id,
+                    'contact_id' => $subscription->contact_id,
+                    'contact_name' => $subscription->contact->name,
+                    'contract_name' => $subscription->nome,
+                    'amount' => $subscription->importo_contratto,
+                    'frequenza' => $subscription->frequenza,
+                    'data' => $subscription->data_prossima_fattura,
+                    'days_until' => now()->diffInDays($subscription->data_prossima_fattura, false),
+                    'is_overdue' => $subscription->data_prossima_fattura->isPast(),
                 ];
             });
 

@@ -12,9 +12,38 @@ class ClientController extends Controller
 {
     public function index(): Response
     {
-        $clients = Contact::withCount('projects')
+        $clients = Contact::with('subscriptions')
+            ->withCount('projects')
             ->latest()
-            ->get();
+            ->get()
+            ->map(function ($client) {
+                // Calcola MRR totale dai contratti attivi
+                $mrrTotale = $client->subscriptions
+                    ->where('attivo', true)
+                    ->sum(fn($sub) => $sub->mrr_calcolato);
+
+                // Prossima fattura in scadenza
+                $prossimaFattura = $client->subscriptions
+                    ->where('attivo', true)
+                    ->whereNotNull('data_prossima_fattura')
+                    ->sortBy('data_prossima_fattura')
+                    ->first();
+
+                return [
+                    'id' => $client->id,
+                    'name' => $client->name,
+                    'email' => $client->email,
+                    'phone' => $client->phone,
+                    'company' => $client->company,
+                    'projects_count' => $client->projects_count,
+                    'mrr_totale' => $mrrTotale,
+                    'numero_contratti' => $client->subscriptions->where('attivo', true)->count(),
+                    'data_prossima_fattura' => $prossimaFattura?->data_prossima_fattura,
+                    'prossimo_contratto' => $prossimaFattura?->nome,
+                    'ghl_attivo' => $client->ghl_attivo,
+                    'whatsapp_attivo' => $client->whatsapp_attivo,
+                ];
+            });
 
         return Inertia::render('Clients/Index', [
             'clients' => $clients,
@@ -68,7 +97,19 @@ class ClientController extends Controller
 
     public function show(Contact $client): Response
     {
-        $client->load(['projects.projectType', 'projects.tasks']);
+        $client->load([
+            'projects.projectType', 
+            'projects.tasks',
+            'subscriptions' => function ($query) {
+                $query->orderBy('attivo', 'desc')
+                      ->orderBy('data_prossima_fattura', 'asc');
+            }
+        ]);
+
+        // Calcola MRR totale
+        $client->mrr_totale = $client->subscriptions
+            ->where('attivo', true)
+            ->sum(fn($sub) => $sub->mrr_calcolato);
 
         return Inertia::render('Clients/Show', [
             'client' => $client,

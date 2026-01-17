@@ -66,6 +66,37 @@ class Contact extends Model
         return $this->hasMany(Project::class);
     }
 
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    /**
+     * Calcola il MRR totale di questo cliente
+     * Somma di tutti i contratti attivi
+     */
+    public function calcolaMrrTotale(): float
+    {
+        return $this->subscriptions()
+            ->where('attivo', true)
+            ->get()
+            ->sum(function ($subscription) {
+                return $subscription->calcolaMrr();
+            });
+    }
+
+    /**
+     * Ottiene la prossima fattura in scadenza
+     */
+    public function prossimaFattura()
+    {
+        return $this->subscriptions()
+            ->where('attivo', true)
+            ->whereNotNull('data_prossima_fattura')
+            ->orderBy('data_prossima_fattura', 'asc')
+            ->first();
+    }
+
     public function isCliente(): bool
     {
         return $this->status === 'cliente';

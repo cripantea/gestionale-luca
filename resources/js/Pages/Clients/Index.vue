@@ -103,8 +103,8 @@ const resetFilters = () => {
                             <thead class="bg-gray-50 dark:bg-gray-700">
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Cliente</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">MRR</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Fatturazione</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">MRR Totale</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Contratti</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Prossima Fattura</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Status</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Azioni</th>
@@ -119,20 +119,24 @@ const resetFilters = () => {
                                         <div class="text-xs text-gray-500 dark:text-gray-400">{{ client.company || '-' }}</div>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm">
-                                        <span v-if="client.accordo_economico_mensile" class="font-semibold text-green-600">
-                                            {{ new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(client.accordo_economico_mensile) }}
+                                        <span v-if="client.mrr_totale > 0" class="font-semibold text-green-600">
+                                            {{ new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(client.mrr_totale) }}
                                         </span>
+                                        <span v-else class="text-gray-400">Deal %</span>
+                                    </td>
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
+                                        <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                                            {{ client.numero_contratti }} {{ client.numero_contratti === 1 ? 'contratto' : 'contratti' }}
+                                        </span>
+                                    </td>
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm">
+                                        <div v-if="client.data_prossima_fattura">
+                                            <div class="font-medium text-gray-900 dark:text-gray-300">
+                                                {{ new Date(client.data_prossima_fattura).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' }) }}
+                                            </div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">{{ client.prossimo_contratto }}</div>
+                                        </div>
                                         <span v-else class="text-gray-400">-</span>
-                                    </td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
-                                        <span v-if="client.tipo_fatturazione" class="capitalize">{{ client.tipo_fatturazione }}</span>
-                                        <span v-else>-</span>
-                                    </td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
-                                        <span v-if="client.data_prossima_fattura">
-                                            {{ new Date(client.data_prossima_fattura).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) }}
-                                        </span>
-                                        <span v-else>-</span>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm">
                                         <div class="flex items-center space-x-1">
@@ -185,32 +189,34 @@ const resetFilters = () => {
                             <!-- Info Grid -->
                             <div class="grid grid-cols-2 gap-3 text-sm">
                                 <div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">💰 MRR</div>
-                                    <div v-if="client.accordo_economico_mensile" class="font-semibold text-green-600">
-                                        {{ new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(client.accordo_economico_mensile) }}
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">💰 MRR Totale</div>
+                                    <div v-if="client.mrr_totale > 0" class="font-semibold text-green-600">
+                                        {{ new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(client.mrr_totale) }}
                                     </div>
-                                    <div v-else class="text-gray-400">-</div>
+                                    <div v-else class="text-gray-400">Deal %</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">📝 Contratti</div>
+                                    <div class="font-semibold text-gray-900 dark:text-gray-100">
+                                        {{ client.numero_contratti || 0 }}
+                                    </div>
                                 </div>
                                 <div>
                                     <div class="text-xs text-gray-500 dark:text-gray-400">📁 Progetti</div>
-                                    <div class="font-semibold text-gray-900 dark:text-gray-100">
+                                    <div class="text-gray-900 dark:text-gray-300">
                                         {{ client.projects_count || 0 }}
                                     </div>
                                 </div>
                                 <div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">📅 Fatturazione</div>
-                                    <div v-if="client.tipo_fatturazione" class="capitalize text-gray-900 dark:text-gray-300">
-                                        {{ client.tipo_fatturazione }}
-                                    </div>
-                                    <div v-else class="text-gray-400">-</div>
-                                </div>
-                                <div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">🔄 Prossima</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">🔄 Prossima Fattura</div>
                                     <div v-if="client.data_prossima_fattura" class="text-gray-900 dark:text-gray-300">
                                         {{ new Date(client.data_prossima_fattura).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) }}
                                     </div>
                                     <div v-else class="text-gray-400">-</div>
                                 </div>
+                            </div>
+                            <div v-if="client.prossimo_contratto" class="text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-700">
+                                📄 {{ client.prossimo_contratto }}
                             </div>
 
                             <!-- Actions -->
