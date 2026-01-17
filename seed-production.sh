@@ -27,6 +27,10 @@ echo "💸 Seeding expenses (SpeseSeeder)..."
 php artisan db:seed --class=SpeseSeeder --force
 
 echo ""
+echo "📝 Seeding subscriptions/contracts (RealSubscriptionsSeeder)..."
+php artisan db:seed --class=RealSubscriptionsSeeder --force
+
+echo ""
 echo "✅ COMPLETATO!"
 echo ""
 echo "📊 Verifica dati:"
@@ -34,7 +38,8 @@ php artisan tinker --execute="
 echo '================================' . PHP_EOL;
 echo 'Total Clients: ' . \App\Models\Contact::count() . PHP_EOL;
 echo 'Total Spese: ' . \App\Models\Spesa::count() . PHP_EOL;
-echo 'MRR Totale: ' . number_format(\App\Models\Contact::sum('accordo_economico_mensile'), 2) . '€' . PHP_EOL;
+echo 'Total Contratti: ' . \App\Models\Subscription::count() . PHP_EOL;
+echo 'MRR Totale: ' . number_format(\App\Models\Subscription::where('attivo', true)->where('frequenza', '!=', 'percentuale')->sum('mrr_calcolato'), 2) . '€' . PHP_EOL;
 echo '================================' . PHP_EOL;
 "
 
