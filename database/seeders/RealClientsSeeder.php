@@ -14,13 +14,36 @@ class RealClientsSeeder extends Seeder
 {
     public function run(): void
     {
-        // Get existing project types
-        $typeWeb = ProjectType::where('name', 'Sito Web')->first();
-        $typeSocial = ProjectType::where('name', 'Gestione Social')->first();
-        $typeGestionale = ProjectType::where('name', 'Gestionale Custom')->first();
-        $typeFusionCore = ProjectType::where('name', 'Fusion Core')->first();
-        $typeFusionSite = ProjectType::where('name', 'Fusion Site')->first();
-        $typeHosting = ProjectType::where('name', 'Hosting & Server')->first();
+        // Create project types if they don't exist
+        $typeWeb = ProjectType::firstOrCreate(
+            ['name' => 'Sito Web'],
+            ['description' => 'Sviluppo e manutenzione siti web']
+        );
+        
+        $typeSocial = ProjectType::firstOrCreate(
+            ['name' => 'Gestione Social'],
+            ['description' => 'Gestione social media e contenuti']
+        );
+        
+        $typeGestionale = ProjectType::firstOrCreate(
+            ['name' => 'Gestionale Custom'],
+            ['description' => 'Software gestionali personalizzati']
+        );
+        
+        $typeFusionCore = ProjectType::firstOrCreate(
+            ['name' => 'Fusion Core'],
+            ['description' => 'Sistema completo Fusion Core']
+        );
+        
+        $typeFusionSite = ProjectType::firstOrCreate(
+            ['name' => 'Fusion Site'],
+            ['description' => 'Sito web con Fusion Core']
+        );
+        
+        $typeHosting = ProjectType::firstOrCreate(
+            ['name' => 'Hosting & Server'],
+            ['description' => 'Gestione hosting e server']
+        );
 
         // Get task templates
         $templateReport = TaskTemplate::where('name', 'LIKE', '%Report%')->first();
