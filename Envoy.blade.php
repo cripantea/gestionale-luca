@@ -48,6 +48,21 @@ pwd
 {{ $npm }}-v
 @endtask
 
+@task('checkAssets', ['on' => 'remote'])
+{{ logMessage('🔍  Checking assets…') }}
+echo "Current release directory:"
+ls -la {{ $currentDir }}
+echo ""
+echo "Public build directory:"
+ls -la {{ $currentDir }}/public/build/ || echo "❌ Build directory not found"
+echo ""
+echo "Manifest file:"
+cat {{ $currentDir }}/public/build/manifest.json || echo "❌ Manifest not found"
+echo ""
+echo "Permissions:"
+ls -ld {{ $currentDir }}/public/build
+@endtask
+
 @task('cloneRepository', ['on' => 'remote'])
 {{ logMessage('🌀  Cloning repository…') }}
 [ -d {{ $releasesDir }} ] || mkdir {{ $releasesDir }};
@@ -97,6 +112,9 @@ npm  install
 {{ logMessage('🌅  Generating assets…') }}
 cd {{ $newReleaseDir }};
 npm run build --verbose
+# Fix permissions for build directory
+chmod -R 755 {{ $newReleaseDir }}/public/build
+chown -R {{ $user }}:{{ $user }} {{ $newReleaseDir }}/public/build
 @endtask
 
 @task('updateSymlinks', ['on' => 'remote'])
@@ -144,6 +162,10 @@ cd {{ $newReleaseDir }}
 {{ $php }} artisan queue:restart
 {{ $php }} artisan config:cache
 {{ $php }} artisan storage:link
+# Ensure public directory has correct permissions
+chmod -R 755 {{ $newReleaseDir }}/public
+# Verify build assets exist
+[ -f {{ $newReleaseDir }}/public/build/manifest.json ] && echo "✅ Build manifest found" || echo "❌ Build manifest NOT found"
 @endtask
 
 @task('cleanOldReleases', ['on' => 'remote'])
