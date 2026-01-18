@@ -1,0 +1,48 @@
+ISTRUZIONI TEST LOCALE SPESE
+================================
+
+1. Apri un terminale e vai nella cartella del progetto:
+   cd /Users/lucapantea/hacker/gestionale-luca
+
+2. Assicurati che il server locale sia attivo:
+   php artisan serve
+
+3. Apri il browser e vai su:
+   http://localhost:8000
+
+4. Fai login
+
+5. Vai su "Spese" nel menu
+
+6. Clicca "Modifica" sulla prima spesa (Canva)
+
+7. Apri DevTools (F12) → Console
+
+8. Cerca questi log:
+   🔍 DEBUG Spesa/Edit.vue
+   Props spesa: {id: 1, nome: "Canva", ...}
+   
+9. Guarda i campi del form:
+   - Nome: dovrebbe contenere "Canva"
+   - Importo: dovrebbe contenere "150"
+   - Frequenza: dovrebbe essere "annuale"
+
+10. Se NON vedi i dati:
+    - Fai hard refresh: Cmd+Shift+R (Mac) o Ctrl+Shift+F5 (Windows)
+    - Oppure apri in modalità Incognito
+
+11. Incolla qui i log della console
+
+================================
+
+SE IL PROBLEMA È SOLO IN PRODUZIONE:
+
+1. Deploy assets aggiornati:
+   ./vendor/bin/envoy run deploy
+
+2. Oppure esegui manualmente sul server:
+   ssh cristi@srv961648.hstgr.cloud
+   cd /var/www/html/dashboard/current
+   npm run build
+   ln -sf .vite/manifest.json public/build/manifest.json
+   php artisan optimize:clear

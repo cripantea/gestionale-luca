@@ -8,12 +8,6 @@ const props = defineProps({
     spesa: Object,
 });
 
-// DEBUG: Log props per verificare cosa arriva dal controller
-console.log('🔍 DEBUG Spesa/Edit.vue');
-console.log('Props spesa:', props.spesa);
-console.log('Nome:', props.spesa?.nome);
-console.log('Importo:', props.spesa?.importo_totale);
-
 const form = useForm({
     nome: props.spesa?.nome || '',
     importo_totale: props.spesa?.importo_totale || 0,
@@ -26,8 +20,6 @@ const form = useForm({
     note: props.spesa?.note || '',
     attiva: props.spesa?.attiva ?? true,
 });
-
-console.log('Form inizializzato:', form.data());
 
 const showDeleteModal = ref(false);
 
@@ -188,9 +180,9 @@ const deleteSpesa = () => {
             @close="showDeleteModal = false"
             @confirm="deleteSpesa"
             title="Elimina Spesa"
-            :message="`Sei sicuro di voler eliminare la spesa '${spesa.nome}'? Questa azione non può essere annullata.`"
+            :message="`Sei sicuro di voler eliminare la spesa '${props.spesa.nome}'? Questa azione non può essere annullata.`"
             confirmText="Elimina"
-            confirmClass="bg-red-600 hover:bg-red-700"
+            danger
         />
     </AuthenticatedLayout>
 </template>
