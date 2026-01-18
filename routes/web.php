@@ -26,7 +26,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/clients-export-all', [\App\Http\Controllers\ClientExportController::class, 'exportAll'])->name('clients.export.all');
 
     // Spese
-    Route::resource('spese', \App\Http\Controllers\SpesaController::class);
+    Route::resource('spese', \App\Http\Controllers\SpesaController::class)->parameters([
+        'spese' => 'spesa'
+    ]);
 
     // Subscriptions (Contratti/Abbonamenti)
     Route::resource('subscriptions', SubscriptionController::class);
