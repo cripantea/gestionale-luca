@@ -29,6 +29,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('spese', \App\Http\Controllers\SpesaController::class)->parameters([
         'spese' => 'spesa'
     ]);
+    Route::post('/spese/batch-destroy', [\App\Http\Controllers\SpesaController::class, 'batchDestroy'])->name('spese.batch-destroy');
 
     // Subscriptions (Contratti/Abbonamenti)
     Route::resource('subscriptions', SubscriptionController::class);

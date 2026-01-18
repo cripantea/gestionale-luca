@@ -130,4 +130,17 @@ class SpesaController extends Controller
         return redirect()->route('spese.index')
             ->with('success', 'Spesa eliminata con successo.');
     }
+
+    public function batchDestroy(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:spesas,id'
+        ]);
+
+        $count = Spesa::whereIn('id', $validated['ids'])->delete();
+
+        return redirect()->route('spese.index')
+            ->with('success', "{$count} spese eliminate con successo.");
+    }
 }
