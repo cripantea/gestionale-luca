@@ -71,6 +71,15 @@ class SpesaController extends Controller
 
     public function edit(Spesa $spesa): Response
     {
+        // DEBUG: Verifica dati ricevuti
+        \Log::info('SPESA EDIT DEBUG', [
+            'id' => $spesa->id,
+            'nome' => $spesa->nome,
+            'importo_totale' => $spesa->importo_totale,
+            'frequenza' => $spesa->frequenza,
+            'all_data' => $spesa->toArray(),
+        ]);
+        
         return Inertia::render('Spese/Edit', [
             'spesa' => $spesa,
         ]);
