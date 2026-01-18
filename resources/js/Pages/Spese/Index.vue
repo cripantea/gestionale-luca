@@ -166,12 +166,16 @@ const chartOptions = {
         legend: {
             position: 'right',
             labels: {
-                color: '#ffffff', // Testo bianco per dark mode
+                color: '#e5e7eb', // Grigio chiaro per dark mode (gray-200)
                 font: {
-                    size: 12
+                    size: 13,
+                    family: "'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
                 },
-                padding: 15,
+                padding: 18,
                 usePointStyle: true,
+                pointStyle: 'circle',
+                boxWidth: 12,
+                boxHeight: 12,
                 generateLabels: (chart) => {
                     const data = chart.data;
                     if (data.labels.length && data.datasets.length) {
@@ -182,6 +186,7 @@ const chartOptions = {
                                 text: `${label}: ${formatCurrency(value)} (${percentage}%)`,
                                 fillStyle: data.datasets[0].backgroundColor[i],
                                 strokeStyle: data.datasets[0].borderColor[i],
+                                fontColor: '#e5e7eb', // Grigio chiaro
                                 lineWidth: 2,
                                 hidden: false,
                                 index: i
@@ -193,6 +198,13 @@ const chartOptions = {
             }
         },
         tooltip: {
+            backgroundColor: 'rgba(31, 41, 55, 0.95)', // gray-800 con opacità
+            titleColor: '#f3f4f6', // gray-100
+            bodyColor: '#e5e7eb', // gray-200
+            borderColor: '#4b5563', // gray-600
+            borderWidth: 1,
+            padding: 12,
+            displayColors: true,
             callbacks: {
                 label: (context) => {
                     const label = context.label || '';
@@ -230,17 +242,17 @@ const chartOptions = {
                 <!-- Grafico e Riepilogo -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <!-- Grafico Categorie -->
-                    <div class="lg:col-span-2 overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800 animate-fadeIn">
-                        <div class="border-b border-gray-200 bg-white px-6 py-4 dark:border-gray-700 dark:bg-gray-800">
-                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+                    <div class="lg:col-span-2 overflow-hidden bg-white shadow-lg sm:rounded-lg dark:bg-gray-800 animate-fadeIn">
+                        <div class="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white px-6 py-4 dark:border-gray-700 dark:from-gray-800 dark:to-gray-800">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
                                 📊 Distribuzione Spese per Categoria
                             </h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
                                 Percentuale spese mensili attive per categoria
                             </p>
                         </div>
-                        <div class="p-6">
-                            <div v-if="speseAttive.length > 0" style="height: 300px;">
+                        <div class="p-8 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
+                            <div v-if="speseAttive.length > 0" style="height: 320px;">
                                 <Doughnut :data="categorieData" :options="chartOptions" />
                             </div>
                             <div v-else class="text-center py-12 text-gray-500 dark:text-gray-400">
