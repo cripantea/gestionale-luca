@@ -8,18 +8,26 @@ const props = defineProps({
     spesa: Object,
 });
 
+// DEBUG: Log props per verificare cosa arriva dal controller
+console.log('🔍 DEBUG Spesa/Edit.vue');
+console.log('Props spesa:', props.spesa);
+console.log('Nome:', props.spesa?.nome);
+console.log('Importo:', props.spesa?.importo_totale);
+
 const form = useForm({
-    nome: props.spesa.nome,
-    importo_totale: props.spesa.importo_totale,
-    frequenza: props.spesa.frequenza,
-    descrizione: props.spesa.descrizione || '',
-    categoria: props.spesa.categoria || '',
-    data_prossimo_rinnovo: props.spesa.data_prossimo_rinnovo ? props.spesa.data_prossimo_rinnovo.split('T')[0] : '',
-    data_scadenza: props.spesa.data_scadenza ? props.spesa.data_scadenza.split('T')[0] : '',
-    metodo_pagamento: props.spesa.metodo_pagamento || '',
-    note: props.spesa.note || '',
-    attiva: props.spesa.attiva,
+    nome: props.spesa?.nome || '',
+    importo_totale: props.spesa?.importo_totale || 0,
+    frequenza: props.spesa?.frequenza || 'mensile',
+    descrizione: props.spesa?.descrizione || '',
+    categoria: props.spesa?.categoria || '',
+    data_prossimo_rinnovo: props.spesa?.data_prossimo_rinnovo ? props.spesa.data_prossimo_rinnovo.split('T')[0] : '',
+    data_scadenza: props.spesa?.data_scadenza ? props.spesa.data_scadenza.split('T')[0] : '',
+    metodo_pagamento: props.spesa?.metodo_pagamento || '',
+    note: props.spesa?.note || '',
+    attiva: props.spesa?.attiva ?? true,
 });
+
+console.log('Form inizializzato:', form.data());
 
 const showDeleteModal = ref(false);
 
