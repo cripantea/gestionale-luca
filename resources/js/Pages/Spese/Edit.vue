@@ -37,12 +37,12 @@ const deleteSpesa = () => {
 </script>
 
 <template>
-    <Head :title="`Modifica ${spesa.nome}`" />
+    <Head :title="`Modifica ${props.spesa?.nome || 'Spesa'}`" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                Modifica Spesa: {{ spesa.nome }}
+                Modifica Spesa: {{ props.spesa?.nome || 'Caricamento...' }}
             </h2>
         </template>
 
