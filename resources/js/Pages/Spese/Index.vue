@@ -166,6 +166,7 @@ const chartOptions = {
         legend: {
             position: 'right',
             labels: {
+                color: '#ffffff', // Testo bianco per dark mode
                 font: {
                     size: 12
                 },
