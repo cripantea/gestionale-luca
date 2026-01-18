@@ -150,4 +150,17 @@ class TaskController extends Controller
 
         return back()->with('success', 'Task ripresa.');
     }
+
+    public function batchDestroy(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:tasks,id'
+        ]);
+
+        $count = Task::whereIn('id', $validated['ids'])->delete();
+
+        return redirect()->route('tasks.index')
+            ->with('success', "{$count} task eliminate con successo.");
+    }
 }

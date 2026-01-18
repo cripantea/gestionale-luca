@@ -47,6 +47,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Tasks
     Route::resource('tasks', TaskController::class);
+    Route::post('/tasks/batch-destroy', [TaskController::class, 'batchDestroy'])->name('tasks.batch-destroy');
     
     // Calendar
     Route::get('/calendar', [\App\Http\Controllers\CalendarController::class, 'index'])->name('calendar.index');

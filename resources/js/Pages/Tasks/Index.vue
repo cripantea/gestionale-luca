@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import TaskKanban from '@/Components/TaskKanban.vue';
+import ConfirmModal from '@/Components/ConfirmModal.vue';
 import { Link, Head, router } from '@inertiajs/vue3';
 import { ref, computed, watch } from 'vue';
 
@@ -11,6 +12,16 @@ const props = defineProps({
 
 // Vista (lista o kanban)
 const viewMode = ref('list'); // 'list' or 'kanban'
+
+// Selezione multipla
+const selectedTasks = ref([]);
+const selectAll = ref(false);
+
+// Dropdown e modali
+const openDropdown = ref(null);
+const showDeleteModal = ref(false);
+const showBatchDeleteModal = ref(false);
+const taskToDelete = ref(null);
 
 // Filtri e ricerca
 const searchQuery = ref('');
@@ -106,6 +117,66 @@ const resetFilters = () => {
 // Toggle per mostrare task completate
 const toggleCompleted = () => {
     router.get(route('tasks.index'), { show_completed: !props.showCompleted }, { preserveState: true, preserveScroll: true });
+};
+
+// Selezione multipla
+const toggleSelectAll = () => {
+    if (selectAll.value) {
+        selectedTasks.value = props.tasks.map(t => t.id);
+    } else {
+        selectedTasks.value = [];
+    }
+};
+
+const toggleSelect = (taskId) => {
+    const index = selectedTasks.value.indexOf(taskId);
+    if (index > -1) {
+        selectedTasks.value.splice(index, 1);
+    } else {
+        selectedTasks.value.push(taskId);
+    }
+    selectAll.value = selectedTasks.value.length === props.tasks.length;
+};
+
+const hasSelection = computed(() => selectedTasks.value.length > 0);
+
+const toggleDropdown = (taskId) => {
+    openDropdown.value = openDropdown.value === taskId ? null : taskId;
+};
+
+const confirmDelete = (task) => {
+    taskToDelete.value = task;
+    showDeleteModal.value = true;
+    openDropdown.value = null;
+};
+
+const deleteTask = () => {
+    if (taskToDelete.value) {
+        router.delete(route('tasks.destroy', taskToDelete.value.id), {
+            onSuccess: () => {
+                showDeleteModal.value = false;
+                taskToDelete.value = null;
+            }
+        });
+    }
+};
+
+const confirmBatchDelete = () => {
+    if (selectedTasks.value.length > 0) {
+        showBatchDeleteModal.value = true;
+    }
+};
+
+const batchDelete = () => {
+    router.post(route('tasks.batch-destroy'), {
+        ids: selectedTasks.value
+    }, {
+        onSuccess: () => {
+            selectedTasks.value = [];
+            selectAll.value = false;
+            showBatchDeleteModal.value = false;
+        }
+    });
 };
 </script>
 
@@ -249,6 +320,33 @@ const toggleCompleted = () => {
                     </div>
                 </div>
 
+                <!-- Barra Azioni Batch -->
+                <div v-if="hasSelection && viewMode === 'list'" class="mb-6 overflow-hidden bg-indigo-50 border-2 border-indigo-200 shadow-sm sm:rounded-lg dark:bg-indigo-900/20 dark:border-indigo-700 animate-slideInRight">
+                    <div class="px-6 py-4 flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <svg class="h-6 w-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span class="text-sm font-medium text-indigo-900 dark:text-indigo-200">
+                                {{ selectedTasks.length }} {{ selectedTasks.length === 1 ? 'task selezionata' : 'task selezionate' }}
+                            </span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button @click="confirmBatchDelete" 
+                                    class="inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all">
+                                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Elimina Selezionate
+                            </button>
+                            <button @click="selectedTasks = []; selectAll = false" 
+                                    class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-all">
+                                Annulla
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Kanban View -->
                 <div v-if="viewMode === 'kanban' && filteredTasks.length > 0" class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
                     <TaskKanban :tasks="filteredTasks" />
@@ -260,6 +358,12 @@ const toggleCompleted = () => {
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead class="bg-gray-50 dark:bg-gray-700">
                                 <tr>
+                                    <th class="px-6 py-3 text-left">
+                                        <input type="checkbox" 
+                                               v-model="selectAll" 
+                                               @change="toggleSelectAll"
+                                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700">
+                                    </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Nome Task</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Progetto</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Cliente</th>
@@ -269,7 +373,15 @@ const toggleCompleted = () => {
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
-                                <tr v-for="task in filteredTasks" :key="task.id" class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                <tr v-for="task in filteredTasks" :key="task.id" 
+                                    class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                                    :class="selectedTasks.includes(task.id) ? 'bg-indigo-50 dark:bg-indigo-900/20' : ''">
+                                    <td class="px-6 py-4">
+                                        <input type="checkbox" 
+                                               :checked="selectedTasks.includes(task.id)"
+                                               @change="toggleSelect(task.id)"
+                                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700">
+                                    </td>
                                     <td class="whitespace-nowrap px-6 py-4">
                                         <Link :href="route('tasks.show', task.id)" class="font-medium text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">
                                             {{ task.name }}
@@ -316,13 +428,44 @@ const toggleCompleted = () => {
                                                 </svg>
                                             </button>
                                             
-                                            <!-- View & Edit -->
-                                            <Link :href="route('tasks.show', task.id)" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400" title="Vedi">
-                                                Vedi
-                                            </Link>
-                                            <Link :href="route('tasks.edit', task.id)" class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400" title="Modifica">
-                                                Modifica
-                                            </Link>
+                                            <!-- Dropdown Menu -->
+                                            <div class="relative inline-block text-left">
+                                                <button @click="toggleDropdown(task.id)" 
+                                                        class="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-all">
+                                                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                                    </svg>
+                                                </button>
+                                                
+                                                <div v-if="openDropdown === task.id"
+                                                     @click.away="openDropdown = null"
+                                                     class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-gray-700 animate-fadeIn">
+                                                    <div class="py-1">
+                                                        <Link :href="route('tasks.show', task.id)" 
+                                                              class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors">
+                                                            <svg class="mr-3 h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                            </svg>
+                                                            Visualizza
+                                                        </Link>
+                                                        <Link :href="route('tasks.edit', task.id)" 
+                                                              class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors">
+                                                            <svg class="mr-3 h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                            </svg>
+                                                            Modifica
+                                                        </Link>
+                                                        <button @click="confirmDelete(task)"
+                                                                class="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors">
+                                                            <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                            </svg>
+                                                            Elimina
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -355,6 +498,28 @@ const toggleCompleted = () => {
                 </div>
             </div>
         </div>
+
+        <!-- Delete Single Modal -->
+        <ConfirmModal
+            :show="showDeleteModal"
+            @close="showDeleteModal = false"
+            @confirm="deleteTask"
+            title="Elimina Task"
+            :message="`Sei sicuro di voler eliminare la task '${taskToDelete?.name}'? Questa azione non può essere annullata.`"
+            confirmText="Elimina"
+            confirmClass="bg-red-600 hover:bg-red-700"
+        />
+
+        <!-- Delete Batch Modal -->
+        <ConfirmModal
+            :show="showBatchDeleteModal"
+            @close="showBatchDeleteModal = false"
+            @confirm="batchDelete"
+            title="Elimina Task Selezionate"
+            :message="`Sei sicuro di voler eliminare ${selectedTasks.length} ${selectedTasks.length === 1 ? 'task' : 'task'}? Questa azione non può essere annullata.`"
+            confirmText="Elimina Tutte"
+            confirmClass="bg-red-600 hover:bg-red-700"
+        />
     </AuthenticatedLayout>
 </template>
 

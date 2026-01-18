@@ -257,7 +257,7 @@ const chartOptions = {
                         <div class="overflow-hidden bg-gradient-to-br from-red-500 to-red-600 shadow-lg sm:rounded-lg animate-fadeIn hover:shadow-xl transition-all">
                             <div class="p-6">
                                 <div class="flex items-center justify-between">
-                                    <div>
+                                    <div class="w-full">
                                         <p class="text-sm font-medium text-red-100">💸 Spese Mensili</p>
                                         <p class="mt-2 text-3xl font-bold text-white">{{ formatCurrency(stats.totale_mensile) }}</p>
                                         <p class="mt-1 text-xs text-red-100">{{ stats.numero_spese }} spese attive</p>
@@ -275,7 +275,7 @@ const chartOptions = {
                         <div class="overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg sm:rounded-lg animate-fadeIn hover:shadow-xl transition-all" style="animation-delay: 0.1s;">
                             <div class="p-6">
                                 <div class="flex items-center justify-between">
-                                    <div>
+                                    <div class="w-full">
                                         <p class="text-sm font-medium text-orange-100">📅 Spese Annuali</p>
                                         <p class="mt-2 text-3xl font-bold text-white">{{ formatCurrency(stats.totale_annuale) }}</p>
                                         <p class="mt-1 text-xs text-orange-100">Proiezione 12 mesi</p>
@@ -293,7 +293,7 @@ const chartOptions = {
                         <div class="overflow-hidden bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-lg sm:rounded-lg animate-fadeIn hover:shadow-xl transition-all" style="animation-delay: 0.2s;">
                             <div class="p-6">
                                 <div class="flex items-center justify-between">
-                                    <div>
+                                    <div class="w-full">
                                         <p class="text-sm font-medium text-indigo-100">💎 Utile Netto</p>
                                         <p class="mt-2 text-3xl font-bold text-white">{{ formatCurrency(stats.utile) }}</p>
                                         <p class="mt-1 text-xs text-indigo-100">Dopo spese e tasse</p>
