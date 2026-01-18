@@ -1,11 +1,17 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Link, Head } from '@inertiajs/vue3';
+import ConfirmModal from '@/Components/ConfirmModal.vue';
+import { Link, Head, router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 const props = defineProps({
     spese: Array,
     stats: Object,
 });
+
+const openDropdown = ref(null);
+const showDeleteModal = ref(false);
+const spesaToDelete = ref(null);
 
 const formatCurrency = (value) => {
     if (!value && value !== 0) return '-';
@@ -21,6 +27,27 @@ const getFrequenzaBadge = (frequenza) => {
         'una_tantum': 'bg-gray-100 text-gray-800',
     };
     return badges[frequenza] || 'bg-gray-100 text-gray-800';
+};
+
+const toggleDropdown = (spesaId) => {
+    openDropdown.value = openDropdown.value === spesaId ? null : spesaId;
+};
+
+const confirmDelete = (spesa) => {
+    spesaToDelete.value = spesa;
+    showDeleteModal.value = true;
+    openDropdown.value = null;
+};
+
+const deleteSpesa = () => {
+    if (spesaToDelete.value) {
+        router.delete(route('spese.destroy', spesaToDelete.value.id), {
+            onSuccess: () => {
+                showDeleteModal.value = false;
+                spesaToDelete.value = null;
+            }
+        });
+    }
 };
 </script>
 
@@ -83,18 +110,18 @@ const getFrequenzaBadge = (frequenza) => {
                         </div>
                     </div>
 
-                    <!-- Imponibile -->
+                    <!-- Utile Netto (allineato con Dashboard) -->
                     <div class="overflow-hidden bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-lg sm:rounded-lg animate-fadeIn hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer" style="animation-delay: 0.2s;">
                         <div class="p-6">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-sm font-medium text-indigo-100">📊 Imponibile</p>
-                                    <p class="mt-2 text-3xl font-bold text-white">{{ formatCurrency(stats.mrr - stats.totale_mensile) }}</p>
-                                    <p class="mt-1 text-xs text-indigo-100">MRR {{ formatCurrency(stats.mrr) }} - Spese</p>
+                                    <p class="text-sm font-medium text-indigo-100">💎 Utile Netto</p>
+                                    <p class="mt-2 text-3xl font-bold text-white">{{ formatCurrency(stats.utile) }}</p>
+                                    <p class="mt-1 text-xs text-indigo-100">MRR Netto {{ formatCurrency(stats.mrr_netto) }} - Spese</p>
                                 </div>
                                 <div class="flex-shrink-0">
                                     <svg class="h-12 w-12 text-indigo-200 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                                     </svg>
                                 </div>
                             </div>
@@ -165,9 +192,35 @@ const getFrequenzaBadge = (frequenza) => {
                                         </span>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                                        <Link :href="route('spese.edit', spesa.id)" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 hover:underline transition-all">
-                                            Modifica
-                                        </Link>
+                                        <div class="relative inline-block text-left">
+                                            <button @click="toggleDropdown(spesa.id)" 
+                                                    class="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-all">
+                                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                                </svg>
+                                            </button>
+                                            
+                                            <div v-if="openDropdown === spesa.id"
+                                                 @click.away="openDropdown = null"
+                                                 class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-gray-700 animate-fadeIn">
+                                                <div class="py-1">
+                                                    <Link :href="route('spese.edit', spesa.id)" 
+                                                          class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors">
+                                                        <svg class="mr-3 h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                        </svg>
+                                                        Modifica
+                                                    </Link>
+                                                    <button @click="confirmDelete(spesa)"
+                                                            class="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors">
+                                                        <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                        Elimina
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>
@@ -187,5 +240,16 @@ const getFrequenzaBadge = (frequenza) => {
 
             </div>
         </div>
+
+        <!-- Delete Confirmation Modal -->
+        <ConfirmModal
+            :show="showDeleteModal"
+            @close="showDeleteModal = false"
+            @confirm="deleteSpesa"
+            title="Elimina Spesa"
+            :message="`Sei sicuro di voler eliminare la spesa '${spesaToDelete?.nome}'? Questa azione non può essere annullata.`"
+            confirmText="Elimina"
+            confirmClass="bg-red-600 hover:bg-red-700"
+        />
     </AuthenticatedLayout>
 </template>

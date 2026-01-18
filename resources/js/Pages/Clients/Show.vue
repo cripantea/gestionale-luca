@@ -128,40 +128,84 @@ const formatCurrency = (value) => {
                 </div>
 
                 <!-- Strategia Upsell & Note Commerciali -->
-                <div class="mt-6 overflow-hidden bg-gradient-to-br from-orange-50 to-orange-100 shadow-sm sm:rounded-lg dark:from-gray-800 dark:to-gray-700 border-2 border-orange-300 dark:border-orange-600">
-                    <div class="border-b border-orange-300 bg-orange-100 p-6 dark:border-orange-600 dark:bg-gray-800">
+                <div id="upsell" class="mt-6 overflow-hidden bg-gradient-to-br from-orange-50 to-orange-100 shadow-lg sm:rounded-lg dark:from-gray-800 dark:to-gray-700 border-2 border-orange-400 dark:border-orange-500 animate-fadeIn">
+                    <div class="border-b border-orange-300 bg-gradient-to-r from-orange-100 to-orange-200 p-6 dark:border-orange-600 dark:from-gray-800 dark:to-gray-700">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-lg font-bold text-orange-900 dark:text-orange-300">
-                                🎯 Strategia Commerciale & Upsell
-                            </h3>
-                            <span v-if="client.potenziale_upsell" class="inline-flex items-center rounded-full bg-orange-600 px-4 py-2 text-sm font-bold text-white">
-                                +{{ formatCurrency(client.potenziale_upsell) }}/mese
-                            </span>
-                        </div>
-                    </div>
-                    <div class="p-6 space-y-6">
-                        <!-- MRR Attuale vs Potenziale -->
-                        <div class="rounded-lg bg-white p-4 dark:bg-gray-800 border border-orange-200 dark:border-gray-600">
-                            <div class="flex items-center justify-between mb-4">
-                                <div>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">MRR Attuale</p>
-                                    <p class="text-2xl font-bold text-green-600">{{ formatCurrency(client.accordo_economico_mensile) }}</p>
-                                </div>
-                                <div class="text-center px-4">
-                                    <svg class="h-8 w-8 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <div class="flex items-center space-x-3">
+                                <div class="flex h-12 w-12 items-center justify-center rounded-full bg-orange-600 shadow-lg">
+                                    <svg class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                                     </svg>
                                 </div>
                                 <div>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">MRR Potenziale</p>
-                                    <p class="text-2xl font-bold text-orange-600">{{ formatCurrency((client.accordo_economico_mensile || 0) + (client.potenziale_upsell || 0)) }}</p>
+                                    <h3 class="text-xl font-bold text-orange-900 dark:text-orange-300">
+                                        Strategia Commerciale & Upsell
+                                    </h3>
+                                    <p class="text-sm text-orange-700 dark:text-orange-400">
+                                        Piano di crescita per questo cliente
+                                    </p>
                                 </div>
                             </div>
-                            <div v-if="client.potenziale_upsell" class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Incremento potenziale:</p>
-                                <p class="text-lg font-semibold text-orange-600">
-                                    +{{ Math.round(((client.potenziale_upsell / (client.accordo_economico_mensile || 1)) * 100)) }}%
-                                </p>
+                            <div class="flex items-center space-x-3">
+                                <div v-if="client.potenziale_upsell" class="text-right">
+                                    <p class="text-xs text-orange-800 dark:text-orange-300 font-medium">Potenziale Mensile</p>
+                                    <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">+{{ formatCurrency(client.potenziale_upsell) }}</p>
+                                </div>
+                                <Link :href="`${route('clients.edit', client.id)}#upsell`" 
+                                      class="inline-flex items-center rounded-lg border-2 border-orange-600 bg-orange-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg hover:bg-orange-700 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-orange-300 transition-all transform hover:scale-105">
+                                    <svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                    Modifica Upsell
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <!-- MRR Attuale vs Potenziale - Prominente -->
+                        <div class="rounded-xl bg-white p-6 dark:bg-gray-800 border-2 border-orange-300 dark:border-orange-600 shadow-lg">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+                                <div class="text-center p-4 rounded-lg bg-green-50 dark:bg-green-900/20">
+                                    <div class="flex items-center justify-center mb-2">
+                                        <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">💰 MRR Attuale</p>
+                                    <p class="text-3xl font-bold text-green-600">{{ formatCurrency(client.accordo_economico_mensile) }}</p>
+                                </div>
+                                
+                                <div class="flex items-center justify-center">
+                                    <div class="text-center">
+                                        <svg class="h-12 w-12 text-orange-500 mx-auto animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                        </svg>
+                                        <p class="mt-2 text-sm font-bold text-orange-600">CRESCITA</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="text-center p-4 rounded-lg bg-orange-50 dark:bg-orange-900/20 border-2 border-orange-400 dark:border-orange-500">
+                                    <div class="flex items-center justify-center mb-2">
+                                        <svg class="h-8 w-8 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                                        </svg>
+                                    </div>
+                                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">🎯 MRR Potenziale</p>
+                                    <p class="text-3xl font-bold text-orange-600">{{ formatCurrency((client.accordo_economico_mensile || 0) + (client.potenziale_upsell || 0)) }}</p>
+                                </div>
+                            </div>
+                            
+                            <div v-if="client.potenziale_upsell" class="mt-6 pt-4 border-t-2 border-orange-200 dark:border-orange-700">
+                                <div class="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-orange-100 to-orange-50 dark:from-orange-900/30 dark:to-orange-900/10">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-700 dark:text-gray-300">📈 Incremento Potenziale</p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Se chiuso l'upsell proposto</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-3xl font-bold text-orange-600">+{{ Math.round(((client.potenziale_upsell / (client.accordo_economico_mensile || 1)) * 100)) }}%</p>
+                                        <p class="text-lg font-semibold text-orange-700 dark:text-orange-400">+{{ formatCurrency(client.potenziale_upsell) }}/mese</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

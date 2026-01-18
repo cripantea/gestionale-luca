@@ -19,12 +19,27 @@ class SpesaController extends Controller
         $totaleRicorrenti = Spesa::attive()->ricorrenti()->sum('importo_mensile');
         $totaleUnaTantum = Spesa::attive()->unaTantum()->sum('importo_totale');
         
+        // Allineato con logica Dashboard
+        // MRR Lordo: somma di TUTTI i contratti attivi (esclusi percentuali)
+        $mrrLordo = \App\Models\Subscription::where('attivo', true)
+            ->where('frequenza', '!=', 'percentuale')
+            ->sum('mrr_calcolato');
+        
+        // MRR Netto (togli 25% contributi regime forfettario)
+        $mrrNetto = $mrrLordo * 0.75;
+        
+        // Utile (MRR Netto - Spese)
+        $utile = $mrrNetto - $totaleRicorrenti;
+        
         $stats = [
             'totale_mensile' => $totaleRicorrenti,
             'totale_annuale' => $totaleRicorrenti * 12,
             'numero_spese' => Spesa::attive()->count(),
             'totale_una_tantum' => $totaleUnaTantum,
-            'mrr' => \App\Models\Contact::sum('accordo_economico_mensile'),
+            // Allineato con Dashboard
+            'mrr_lordo' => $mrrLordo,
+            'mrr_netto' => $mrrNetto,
+            'utile' => $utile,
         ];
 
         return Inertia::render('Spese/Index', [

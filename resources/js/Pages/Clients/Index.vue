@@ -9,6 +9,7 @@ const props = defineProps({
 
 // Filtri e ricerca
 const searchQuery = ref('');
+const openDropdown = ref(null);
 
 // Filtro dei clienti
 const filteredClients = computed(() => {
@@ -30,6 +31,10 @@ const filteredClients = computed(() => {
 // Reset filtri
 const resetFilters = () => {
     searchQuery.value = '';
+};
+
+const toggleDropdown = (clientId) => {
+    openDropdown.value = openDropdown.value === clientId ? null : clientId;
 };
 </script>
 
@@ -146,12 +151,44 @@ const resetFilters = () => {
                                         </div>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                                        <Link :href="route('clients.show', client.id)" class="mr-3 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">
-                                            Vedi
-                                        </Link>
-                                        <Link :href="route('clients.edit', client.id)" class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400">
-                                            Modifica
-                                        </Link>
+                                        <div class="relative inline-block text-left">
+                                            <button @click="toggleDropdown(client.id)" 
+                                                    class="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-all">
+                                                Azioni
+                                                <svg class="ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
+                                            
+                                            <div v-if="openDropdown === client.id"
+                                                 @click.away="openDropdown = null"
+                                                 class="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-gray-700 animate-fadeIn">
+                                                <div class="py-1">
+                                                    <Link :href="route('clients.show', client.id)" 
+                                                          class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors">
+                                                        <svg class="mr-3 h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                        </svg>
+                                                        Visualizza Cliente
+                                                    </Link>
+                                                    <Link :href="route('clients.edit', client.id)" 
+                                                          class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors">
+                                                        <svg class="mr-3 h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                        </svg>
+                                                        Modifica Info
+                                                    </Link>
+                                                    <Link :href="`${route('clients.edit', client.id)}#upsell`" 
+                                                          class="flex items-center px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-900/20 transition-colors">
+                                                        <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                                        </svg>
+                                                        Modifica Upsell
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>
