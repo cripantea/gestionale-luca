@@ -8,20 +8,6 @@ const props = defineProps({
     spesa: Object,
 });
 
-// 🔍 DEBUG: Stampa props in console
-console.log('=== SPESE/EDIT DEBUG ===');
-console.log('props:', props);
-console.log('props.spesa:', props.spesa);
-if (props.spesa) {
-    console.log('✅ SPESA RICEVUTA:');
-    console.log('  ID:', props.spesa.id);
-    console.log('  Nome:', props.spesa.nome);
-    console.log('  Importo:', props.spesa.importo_totale);
-    console.log('  Frequenza:', props.spesa.frequenza);
-} else {
-    console.error('❌ PROPS.SPESA È UNDEFINED!');
-}
-
 const form = useForm({
     nome: props.spesa?.nome || '',
     importo_totale: props.spesa?.importo_totale || 0,
@@ -34,8 +20,6 @@ const form = useForm({
     note: props.spesa?.note || '',
     attiva: props.spesa?.attiva ?? true,
 });
-
-console.log('Form data:', form.data());
 
 const showDeleteModal = ref(false);
 
