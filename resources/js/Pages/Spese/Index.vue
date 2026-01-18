@@ -48,7 +48,7 @@ const getFrequenzaBadge = (frequenza) => {
                 <!-- Cards Statistiche -->
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     <!-- Spese Mensili -->
-                    <div class="overflow-hidden bg-gradient-to-br from-red-500 to-red-600 shadow-lg sm:rounded-lg">
+                    <div class="overflow-hidden bg-gradient-to-br from-red-500 to-red-600 shadow-lg sm:rounded-lg animate-fadeIn hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer">
                         <div class="p-6">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -66,7 +66,7 @@ const getFrequenzaBadge = (frequenza) => {
                     </div>
 
                     <!-- Spese Annuali -->
-                    <div class="overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg sm:rounded-lg">
+                    <div class="overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg sm:rounded-lg animate-fadeIn hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer" style="animation-delay: 0.1s;">
                         <div class="p-6">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -84,7 +84,7 @@ const getFrequenzaBadge = (frequenza) => {
                     </div>
 
                     <!-- Imponibile -->
-                    <div class="overflow-hidden bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-lg sm:rounded-lg">
+                    <div class="overflow-hidden bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-lg sm:rounded-lg animate-fadeIn hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer" style="animation-delay: 0.2s;">
                         <div class="p-6">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -103,7 +103,7 @@ const getFrequenzaBadge = (frequenza) => {
                 </div>
 
                 <!-- Tabella Spese -->
-                <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
+                <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800 animate-fadeIn" style="animation-delay: 0.3s;">
                     <div class="border-b border-gray-200 bg-white px-6 py-4 dark:border-gray-700 dark:bg-gray-800">
                         <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
                             📋 Dettaglio Spese
@@ -165,7 +165,7 @@ const getFrequenzaBadge = (frequenza) => {
                                         </span>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                                        <Link :href="route('spese.edit', spesa.id)" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">
+                                        <Link :href="route('spese.edit', spesa.id)" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 hover:underline transition-all">
                                             Modifica
                                         </Link>
                                     </td>

@@ -1,6 +1,8 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Link, Head, useForm } from '@inertiajs/vue3';
+import ConfirmModal from '@/Components/ConfirmModal.vue';
+import { Link, Head, useForm, router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 const props = defineProps({
     spesa: Object,
@@ -19,8 +21,18 @@ const form = useForm({
     attiva: props.spesa.attiva,
 });
 
+const showDeleteModal = ref(false);
+
 const submit = () => {
     form.put(route('spese.update', props.spesa.id));
+};
+
+const deleteSpesa = () => {
+    router.delete(route('spese.destroy', props.spesa.id), {
+        onSuccess: () => {
+            showDeleteModal.value = false;
+        }
+    });
 };
 </script>
 
@@ -36,7 +48,7 @@ const submit = () => {
 
         <div class="py-12">
             <div class="mx-auto max-w-3xl sm:px-6 lg:px-8">
-                <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
+                <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800 animate-fadeIn">
                     <div class="p-6">
                         <form @submit.prevent="submit" class="space-y-6">
                             <div>
@@ -134,19 +146,43 @@ const submit = () => {
                                 </label>
                             </div>
 
-                            <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-                                <Link :href="route('spese.index')" class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                                    Annulla
-                                </Link>
-                                <button type="submit" :disabled="form.processing"
-                                        class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50">
-                                    Salva Modifiche
+                            <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
+                                <button 
+                                    type="button"
+                                    @click="showDeleteModal = true"
+                                    class="inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all"
+                                >
+                                    <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                    Elimina Spesa
                                 </button>
+
+                                <div class="flex items-center space-x-3">
+                                    <Link :href="route('spese.index')" class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                                        Annulla
+                                    </Link>
+                                    <button type="submit" :disabled="form.processing"
+                                            class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 transition-all">
+                                        Salva Modifiche
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Delete Confirmation Modal -->
+        <ConfirmModal
+            :show="showDeleteModal"
+            @close="showDeleteModal = false"
+            @confirm="deleteSpesa"
+            title="Elimina Spesa"
+            :message="`Sei sicuro di voler eliminare la spesa '${spesa.nome}'? Questa azione non può essere annullata.`"
+            confirmText="Elimina"
+            confirmClass="bg-red-600 hover:bg-red-700"
+        />
     </AuthenticatedLayout>
 </template>

@@ -98,7 +98,7 @@ const upcomingTasks = computed(() => props.tasks.filter(task => !task.is_overdue
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     
                     <!-- 1. MRR Lordo -->
-                    <Link :href="route('clients.index')" class="overflow-hidden bg-gradient-to-br from-green-500 to-green-600 shadow-lg sm:rounded-lg hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer">
+                    <Link :href="route('clients.index')" class="overflow-hidden bg-gradient-to-br from-green-500 to-green-600 shadow-lg sm:rounded-lg hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer animate-fadeIn">
                         <div class="p-6">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -116,7 +116,7 @@ const upcomingTasks = computed(() => props.tasks.filter(task => !task.is_overdue
                     </Link>
 
                     <!-- 2. MRR Netto (Lordo x 0.75) -->
-                    <div class="overflow-hidden bg-gradient-to-br from-teal-500 to-teal-600 shadow-lg sm:rounded-lg">
+                    <div class="overflow-hidden bg-gradient-to-br from-teal-500 to-teal-600 shadow-lg sm:rounded-lg hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer animate-fadeIn" style="animation-delay: 0.1s;">
                         <div class="p-6">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -134,7 +134,7 @@ const upcomingTasks = computed(() => props.tasks.filter(task => !task.is_overdue
                     </div>
 
                     <!-- 3. Utile (MRR Netto - Spese) -->
-                    <div class="overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg sm:rounded-lg">
+                    <div class="overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg sm:rounded-lg hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer animate-fadeIn" style="animation-delay: 0.2s;">
                         <div class="p-6">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -152,7 +152,7 @@ const upcomingTasks = computed(() => props.tasks.filter(task => !task.is_overdue
                     </div>
 
                     <!-- 4. Potenziale Upsell -->
-                    <div class="overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg sm:rounded-lg">
+                    <div class="overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg sm:rounded-lg hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer animate-fadeIn" style="animation-delay: 0.3s;">
                         <div class="p-6">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -171,7 +171,7 @@ const upcomingTasks = computed(() => props.tasks.filter(task => !task.is_overdue
                 </div>
 
                 <!-- Spese Straordinarie in Arrivo -->
-                <div v-if="speseStratordinarie && speseStratordinarie.length > 0" class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800 border-2 border-red-200 dark:border-red-800">
+                <div v-if="speseStratordinarie && speseStratordinarie.length > 0" class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800 border-2 border-red-200 dark:border-red-800 animate-fadeIn" style="animation-delay: 0.4s;">
                     <div class="border-b border-red-200 bg-gradient-to-r from-red-50 to-orange-50 px-6 py-4 dark:border-red-800 dark:from-red-900/20 dark:to-orange-900/20">
                         <div class="flex items-center justify-between">
                             <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -220,31 +220,35 @@ const upcomingTasks = computed(() => props.tasks.filter(task => !task.is_overdue
                 </div>
 
                 <!-- Prossime Fatture -->
-                <div v-if="upcomingInvoices && upcomingInvoices.length > 0" class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
-                    <div class="border-b border-gray-200 bg-white px-6 py-4 dark:border-gray-700 dark:bg-gray-800">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+                <div v-if="upcomingInvoices && upcomingInvoices.length > 0" class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800 animate-fadeIn" style="animation-delay: 0.5s;">
+                    <div class="border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 dark:border-gray-700 dark:from-green-900/20 dark:to-emerald-900/20">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
                             📆 Prossime Fatture (30 giorni)
                         </h3>
                     </div>
                     <div class="p-6">
                         <div class="space-y-3">
-                            <div v-for="invoice in upcomingInvoices" :key="invoice.id" class="flex items-center justify-between rounded-lg border border-gray-200 p-4 dark:border-gray-700 hover:border-indigo-300 transition-colors">
+                            <div v-for="invoice in upcomingInvoices" :key="invoice.subscription_id" class="flex items-center justify-between rounded-lg border border-gray-200 p-4 dark:border-gray-700 hover:border-indigo-300 transition-colors hover:shadow-md">
                                 <div class="flex-1">
-                                    <Link :href="route('clients.show', invoice.id)" class="font-medium text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">
-                                        {{ invoice.name }}
+                                    <Link :href="route('clients.show', invoice.contact_id)" class="font-medium text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 hover:underline transition-all">
+                                        {{ invoice.contact_name }}
                                     </Link>
-                                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400 capitalize">{{ invoice.tipo }}</div>
+                                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">📝 {{ invoice.contract_name }}</div>
+                                    <div class="mt-0.5 text-xs text-gray-400 dark:text-gray-500 capitalize">🔄 {{ invoice.frequenza }}</div>
                                 </div>
                                 <div class="flex items-center space-x-4">
                                     <div class="text-right">
                                         <div class="font-semibold text-green-600">{{ formatCurrency(invoice.amount) }}</div>
                                         <div class="text-xs text-gray-500 dark:text-gray-400">
-                                            {{ new Date(invoice.data).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) }}
+                                            {{ new Date(invoice.data).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' }) }}
                                         </div>
                                     </div>
                                     <div>
-                                        <span v-if="invoice.days_until <= 3" class="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
-                                            {{ invoice.days_until === 0 ? 'Oggi' : invoice.days_until + 'gg' }}
+                                        <span v-if="invoice.is_overdue" class="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800 animate-pulse">
+                                            ⚠️ SCADUTO
+                                        </span>
+                                        <span v-else-if="invoice.days_until <= 3" class="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
+                                            {{ invoice.days_until === 0 ? '🔥 Oggi' : '⚠️ ' + invoice.days_until + 'gg' }}
                                         </span>
                                         <span v-else-if="invoice.days_until <= 7" class="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800">
                                             {{ invoice.days_until }}gg
@@ -263,7 +267,7 @@ const upcomingTasks = computed(() => props.tasks.filter(task => !task.is_overdue
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     
                     <!-- Urgent Tasks with Quick Actions -->
-                    <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
+                    <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800 animate-fadeIn" style="animation-delay: 0.6s;">
                         <div class="border-b border-gray-200 bg-gradient-to-r from-red-50 to-orange-50 p-6 dark:border-gray-700 dark:from-red-900/20 dark:to-orange-900/20">
                             <div class="flex items-center justify-between">
                                 <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -327,7 +331,7 @@ const upcomingTasks = computed(() => props.tasks.filter(task => !task.is_overdue
                     </div>
 
                     <!-- Active Projects Progress -->
-                    <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
+                    <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800 animate-fadeIn" style="animation-delay: 0.7s;">
                         <div class="border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 dark:border-gray-700 dark:from-blue-900/20 dark:to-indigo-900/20">
                             <div class="flex items-center justify-between">
                                 <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
